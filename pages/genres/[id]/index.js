@@ -2,16 +2,34 @@ import fs from 'fs';
 import path from 'path';
 import Link from 'next/link';
 
-export async function getServerSideProps({ params }) {
-  const { id } = params; 
+// Generate static paths for all genres
+export async function getStaticPaths() {
   const filePath = path.join(process.cwd(), 'data', 'data.json');
   const jsonData = fs.readFileSync(filePath, 'utf-8');
   const data = JSON.parse(jsonData);
+
+  const paths = data.genres.map(genre => ({
+    params: { id: genre.id },
+  }));
+
+  return {
+    paths,
+    fallback: false, // Set to 'blocking' if you want fallback behavior
+  };
+}
+
+// Provide props for each genre page at build time
+export async function getStaticProps({ params }) {
+  const { id } = params;
+  const filePath = path.join(process.cwd(), 'data', 'data.json');
+  const jsonData = fs.readFileSync(filePath, 'utf-8');
+  const data = JSON.parse(jsonData);
+
   const genre = data.genres.find(genre => genre.id === id);
   const movies = data.movies.filter(movie => movie.genreId === id);
 
   if (!genre) {
-    return { notFound: true }; 
+    return { notFound: true };
   }
 
   return {
