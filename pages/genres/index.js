@@ -1,20 +1,23 @@
-import fs from 'fs';
-import path from 'path';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
-export async function getServerSideProps() {
-  const filePath = path.join(process.cwd(), 'data', 'data.json');
-  const jsonData = fs.readFileSync(filePath, 'utf-8');
-  const data = JSON.parse(jsonData);
+export default function GenresPage() {
+  const [genres, setGenres] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  return {
-    props: {
-      genres: data.genres,
-    },
-  };
-}
+  useEffect(() => {
+    async function fetchGenres() {
+      const res = await fetch('/api/genres');
+      const data = await res.json();
+      setGenres(data);
+      setLoading(false);
+    }
 
-export default function GenresPage({ genres }) {
+    fetchGenres();
+  }, []);
+
+  if (loading) return <div className="p-6 text-center text-lg">Loading genres...</div>;
+
   return (
     <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-4xl font-bold text-center mb-8">🎭 Browse by Genre</h1>

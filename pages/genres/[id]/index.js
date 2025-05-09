@@ -1,42 +1,43 @@
-import fs from 'fs';
-import path from 'path';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import Link from 'next/link';
 
-// Generate static paths for all genres
 export async function getStaticPaths() {
-  const filePath = path.join(process.cwd(), 'data', 'data.json');
-  const jsonData = fs.readFileSync(filePath, 'utf-8');
-  const data = JSON.parse(jsonData);
+  const snapshot = await getDocs(collection(db, 'genres'));
+  const genres = snapshot.docs.map(doc => ({ id: doc.id }));
 
-  const paths = data.genres.map(genre => ({
+  const paths = genres.map(genre => ({
     params: { id: genre.id },
   }));
 
   return {
     paths,
-    fallback: false, // Set to 'blocking' if you want fallback behavior
+    fallback: false, // or 'blocking' if you want fallback support
   };
 }
 
-// Provide props for each genre page at build time
 export async function getStaticProps({ params }) {
-  const { id } = params;
-  const filePath = path.join(process.cwd(), 'data', 'data.json');
-  const jsonData = fs.readFileSync(filePath, 'utf-8');
-  const data = JSON.parse(jsonData);
+  const genreId = params.id;
 
-  const genre = data.genres.find(genre => genre.id === id);
-  const movies = data.movies.filter(movie => movie.genreId === id);
+  const genreSnapshot = await getDocs(collection(db, 'genres'));
+  const genre = genreSnapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .find(g => g.id === genreId);
 
   if (!genre) {
     return { notFound: true };
   }
+
+  const moviesQuery = query(collection(db, 'movies'), where('genreId', '==', genreId));
+  const moviesSnapshot = await getDocs(moviesQuery);
+  const movies = moviesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
   return {
     props: {
       genre,
       movies,
     },
+    revalidate: 10,
   };
 }
 

@@ -1,6 +1,5 @@
-// pages/movies/[id]/director.js
-import useSWR from 'swr';
 import { useRouter } from 'next/router';
+import useSWR from 'swr';
 import Link from 'next/link';
 
 const fetcher = url => fetch(url).then(res => res.json());
@@ -8,7 +7,7 @@ const fetcher = url => fetch(url).then(res => res.json());
 export default function DirectorPage() {
   const router = useRouter();
   const { id } = router.query;
-  const { data, error } = useSWR(id ? `/api/directors?movieId=${id}` : null, fetcher);
+  const { data, error } = useSWR(id ? `/api/directors/${id}` : null, fetcher);
 
   if (error) return <div className="text-center mt-20 text-red-600">Failed to load director.</div>;
   if (!data) return <div className="text-center mt-20">Loading...</div>;

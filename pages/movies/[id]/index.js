@@ -1,45 +1,28 @@
-import fs from 'fs';
-import path from 'path';
-import Link from 'next/link';
+export async function getServerSideProps({ params }) {
+  const movieRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/movies/${params.id}`);
+  if (!movieRes.ok) return { notFound: true };
 
-export async function getStaticPaths() {
-  const filePath = path.join(process.cwd(), 'data', 'data.json');
-  const jsonData = fs.readFileSync(filePath, 'utf-8');
-  const data = JSON.parse(jsonData);
+  const movie = await movieRes.json();
 
-  const paths = data.movies.map(movie => ({
-    params: { id: movie.id }
-  }));
+  const [directorRes, genreRes] = await Promise.all([
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/directors/${movie.directorId}`),
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/genres`),
+  ]);
 
-  return {
-    paths,
-    fallback: 'blocking', 
-  };
-}
-
-export async function getStaticProps({ params }) {
-  const filePath = path.join(process.cwd(), 'data', 'data.json');
-  const jsonData = fs.readFileSync(filePath, 'utf-8');
-  const data = JSON.parse(jsonData);
-
-  const movie = data.movies.find(m => m.id === params.id);
-
-  if (!movie) {
-    return { notFound: true };
-  }
-
-  const director = data.directors.find(d => d.id === movie.directorId);
-  const genre = data.genres.find(g => g.id === movie.genreId);
+  const directorData = await directorRes.json();
+  const genresData = await genreRes.json();
+  const genre = genresData.find(g => g.id === movie.genreId);
 
   return {
     props: {
       movie,
-      director,
-      genre,
+      director: directorData,
+      genre: genre || null,
     },
-    revalidate: 10,
   };
 }
+
+import Link from 'next/link';
 
 export default function MovieDetail({ movie, director, genre }) {
   return (
@@ -49,7 +32,7 @@ export default function MovieDetail({ movie, director, genre }) {
       <p className="text-gray-700 text-lg mb-4">{movie.description}</p>
 
       <div className="mb-4">
-        <span className="font-semibold">🎬 Genre:</span> {genre?.name}
+        <span className="font-semibold">🎬 Genre:</span> {genre?.name || 'Unknown'}
       </div>
 
       <div className="mb-4">
@@ -62,8 +45,8 @@ export default function MovieDetail({ movie, director, genre }) {
 
       <div className="mb-6">
         <span className="font-semibold">🎥 Director:</span>{' '}
-        <Link href={`/movies/${movie.id}/director`} className="text-blue-600 hover:underline">
-          {director?.name}
+        <Link href={`/directors/${director.id}`} className="text-blue-600 hover:underline">
+          {director.name}
         </Link>
       </div>
 
