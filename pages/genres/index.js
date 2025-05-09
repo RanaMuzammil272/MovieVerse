@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/router';
+import {
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  Box,
+  CircularProgress,
+} from '@mui/material';
 
 export default function GenresPage() {
+  const router = useRouter();
   const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,21 +26,42 @@ export default function GenresPage() {
     fetchGenres();
   }, []);
 
-  if (loading) return <div className="p-6 text-center text-lg">Loading genres...</div>;
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">🎭 Browse by Genre</h1>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h3" component="h1" gutterBottom align="center">
+        🎭 Browse by Genre
+      </Typography>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <Grid container spacing={3}>
         {genres.map(genre => (
-          <Link key={genre.id} href={`/genres/${genre.id}`}>
-            <div className="cursor-pointer bg-white shadow-md hover:shadow-xl rounded-xl p-6 transition transform hover:scale-105">
-              <h2 className="text-2xl font-semibold text-blue-700">{genre.name}</h2>
-            </div>
-          </Link>
+          <Grid item xs={12} sm={6} md={4} key={genre.id}>
+            <Card
+              onClick={() => router.push(`/genres/${genre.id}`)}
+              sx={{
+                cursor: 'pointer',
+                '&:hover': {
+                  transform: 'scale(1.02)',
+                  transition: 'transform 0.2s ease-in-out',
+                },
+              }}
+            >
+              <CardContent>
+                <Typography variant="h5" component="h2" color="primary">
+                  {genre.name}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Container>
   );
 }

@@ -1,6 +1,17 @@
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
+import {
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  Chip,
+  Box,
+  CircularProgress,
+} from '@mui/material';
 
 export default function Movies() {
   const router = useRouter();
@@ -29,62 +40,95 @@ export default function Movies() {
     ? movies
     : movies.filter(movie => movie.genreId === selectedGenre);
 
-  const navigateToGenres = () => router.push('/genres');
-  const navigateToHelp = () => router.push('/help');
-
-  if (loading) return <div className="p-6 text-center text-lg">Loading movies...</div>;
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <h1 className="text-4xl font-extrabold mb-10 text-center text-gray-900">
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h3" component="h1" gutterBottom align="center">
         🎬 Movie Gallery
-      </h1>
+      </Typography>
 
-      <div className="flex flex-wrap justify-center gap-3 mb-8">
-        <button
-          className={`px-4 py-2 rounded-full font-medium shadow-sm transition 
-            ${selectedGenre === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+      <Box sx={{ mb: 4, display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'center' }}>
+        <Chip
+          label="All Genres"
           onClick={() => setSelectedGenre('all')}
-        >
-          All Genres
-        </button>
+          color={selectedGenre === 'all' ? 'primary' : 'default'}
+          sx={{ m: 0.5 }}
+        />
         {genres.map(genre => (
-          <button
+          <Chip
             key={genre.id}
-            className={`px-4 py-2 rounded-full font-medium shadow-sm transition 
-              ${selectedGenre === genre.id ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'}`}
+            label={genre.name}
             onClick={() => setSelectedGenre(genre.id)}
-          >
-            {genre.name}
-          </button>
+            color={selectedGenre === genre.id ? 'primary' : 'default'}
+            sx={{ m: 0.5 }}
+          />
         ))}
-      </div>
+      </Box>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+      <Grid container spacing={3}>
         {filteredMovies.map(movie => (
-          <Link key={movie.id} href={`/movies/${movie.id}`} className="block p-5 bg-white shadow-md hover:shadow-xl rounded-2xl transition border border-gray-100">
-            <h2 className="text-lg font-semibold mb-2 text-blue-800">{movie.title}</h2>
-            <p className="text-sm text-gray-500 mb-1">🎞️ Release Year: {movie.releaseYear}</p>
-            <p className="text-sm text-gray-700">⭐ Rating: {movie.rating}</p>
-          </Link>
+          <Grid item xs={12} sm={6} md={4} lg={3} key={movie.id}>
+            <Card 
+              sx={{ 
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                '&:hover': {
+                  transform: 'scale(1.02)',
+                  transition: 'transform 0.2s ease-in-out',
+                },
+              }}
+            >
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" component="h2" gutterBottom>
+                  {movie.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  🎞️ Release Year: {movie.releaseYear}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  ⭐ Rating: {movie.rating}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button 
+                  size="small" 
+                  color="primary"
+                  onClick={() => router.push(`/movies/${movie.id}`)}
+                >
+                  View Details
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
         ))}
-      </div>
+      </Grid>
 
-      <div className="flex justify-center gap-4 mb-6">
-        <button
-          onClick={navigateToGenres}
-          className="mt-8 px-6 py-3 bg-green-600 hover:bg-green-700 text-white text-lg rounded-full shadow-lg transition"
+      <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
+        <Button
+          variant="contained"
+          color="success"
+          onClick={() => router.push('/genres')}
+          size="large"
         >
           Browse Genres
-        </button>
-
-        <button
-          onClick={navigateToHelp}
-          className="mt-8 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-full shadow-lg transition"
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => router.push('/help')}
+          size="large"
         >
           Go to Help Center
-        </button>
-      </div>
-    </div>
+        </Button>
+      </Box>
+    </Container>
   );
 }

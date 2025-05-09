@@ -1,14 +1,86 @@
+import { useRouter } from 'next/router';
+import {
+  Container,
+  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Box,
+} from '@mui/material';
+
 export default function HelpHome() {
-    return (
-      <div className="max-w-3xl mx-auto p-6">
-        <h1 className="text-4xl font-bold text-blue-800">Welcome to the Help Center</h1>
-        <p className="text-lg text-gray-700 mt-4">How can we assist you today?</p>
-        <ul className="list-disc pl-6 mt-6">
-          <li><a href="/help/faqs" className="text-blue-600 hover:underline">FAQs</a></li>
-          <li><a href="/help/contact" className="text-blue-600 hover:underline">Contact Us</a></li>
-          <li><a href="/help/privacy" className="text-blue-600 hover:underline">Privacy Policy</a></li>
-        </ul>
-      </div>
-    );
-  }
+  const router = useRouter();
+
+  return (
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Typography variant="h3" component="h1" gutterBottom color="primary">
+        Welcome to the Help Center
+      </Typography>
+      <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
+        How can we assist you today?
+      </Typography>
+
+      <List>
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => router.push('/help/faqs')}>
+            <ListItemText 
+              primary="FAQs"
+              primaryTypographyProps={{
+                variant: 'h6',
+                color: 'primary',
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => router.push('/help/contact')}>
+            <ListItemText 
+              primary="Contact Us"
+              primaryTypographyProps={{
+                variant: 'h6',
+                color: 'primary',
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => router.push('/help/privacy')}>
+            <ListItemText 
+              primary="Privacy Policy"
+              primaryTypographyProps={{
+                variant: 'h6',
+                color: 'primary',
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+      </List>
+
+      <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+        <ListItemButton 
+          onClick={() => router.push('/movies')}
+          sx={{
+            bgcolor: 'primary.main',
+            color: 'white',
+            borderRadius: 2,
+            '&:hover': {
+              bgcolor: 'primary.dark',
+            },
+          }}
+        >
+          <ListItemText 
+            primary="Go Back to Movies"
+            primaryTypographyProps={{
+              variant: 'h6',
+              align: 'center',
+            }}
+          />
+        </ListItemButton>
+      </Box>
+    </Container>
+  );
+}
   

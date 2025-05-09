@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import { Box, Typography, Button, Container, Paper } from '@mui/material';
 
 export default function Home() {
   const router = useRouter();
@@ -8,27 +9,62 @@ export default function Home() {
   };
 
   return (
-    <div className="relative h-screen w-full bg-black text-white overflow-hidden">
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-30"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1517602302552-471fe67acf66?auto=format&fit=crop&w=1740&q=80')",
+    <Box
+      sx={{
+        position: 'relative',
+        height: '100vh',
+        width: '100%',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: 'url("https://images.unsplash.com/photo-1517602302552-471fe67acf66?auto=format&fit=crop&w=1740&q=80")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.3,
         }}
-      ></div>
+      />
 
-
-      <div className="absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-10 text-center px-4">
-        <h1 className="text-5xl font-extrabold mb-6">🎬 Welcome to MovieVerse</h1>
-        <p className="mb-8 text-lg text-gray-300 max-w-md">Explore top-rated movies, genres, and directors from all over the world.</p>
-
-        <button
-          onClick={handleEnter}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-lg rounded-full shadow-lg transition transform hover:scale-105"
+      <Container maxWidth="md">
+        <Paper
+          elevation={3}
+          sx={{
+            p: 4,
+            textAlign: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+          }}
         >
-          Explore
-        </button>
-      </div>
-    </div>
+          <Typography variant="h2" component="h1" gutterBottom>
+            🎬 Welcome to MovieVerse
+          </Typography>
+          <Typography variant="h6" sx={{ mb: 4, color: 'grey.300' }}>
+            Explore top-rated movies, genres, and directors from all over the world.
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={handleEnter}
+            sx={{
+              px: 4,
+              py: 1.5,
+              fontSize: '1.1rem',
+              borderRadius: '50px',
+            }}
+          >
+            Explore
+          </Button>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
