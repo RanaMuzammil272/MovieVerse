@@ -1,4 +1,13 @@
 import Link from 'next/link';
+import {
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  CardActionArea,
+  Box,
+} from '@mui/material';
 
 export async function getServerSideProps({ params }) {
   const genreId = params.id;
@@ -24,20 +33,43 @@ export async function getServerSideProps({ params }) {
 
 export default function GenrePage({ genre, movies }) {
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-4xl font-bold text-center mb-8">🎭 {genre.name} Movies</h1>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Typography variant="h3" component="h1" align="center" gutterBottom color="primary">
+        🎭 {genre.name} Movies
+      </Typography>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <Grid container spacing={3}>
         {movies.map((movie) => (
-          <Link key={movie.id} href={`/movies/${movie.id}`}>
-            <div className="cursor-pointer bg-white shadow-md hover:shadow-xl rounded-xl p-6 transition transform hover:scale-105">
-              <h2 className="text-2xl font-semibold text-blue-700">{movie.title}</h2>
-              <p className="text-sm text-gray-600">Release Year: {movie.releaseYear}</p>
-              <p className="text-sm text-gray-600">Rating: {movie.rating}</p>
-            </div>
-          </Link>
+          <Grid item xs={12} sm={6} md={4} key={movie.id}>
+            <Card 
+              elevation={3}
+              sx={{
+                height: '100%',
+                transition: 'transform 0.2s',
+                '&:hover': {
+                  transform: 'scale(1.02)',
+                },
+              }}
+            >
+              <CardActionArea component={Link} href={`/movies/${movie.id}`}>
+                <CardContent>
+                  <Typography variant="h6" component="h2" color="primary" gutterBottom>
+                    {movie.title}
+                  </Typography>
+                  <Box sx={{ mt: 1 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Release Year: {movie.releaseYear}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Rating: {movie.rating}
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Grid>
         ))}
-      </div>
-    </div>
+      </Grid>
+    </Container>
   );
 }

@@ -1,73 +1,114 @@
 import Link from 'next/link';
+import {
+  Container,
+  Typography,
+  Paper,
+  Box,
+  Chip,
+  Button,
+  Link as MuiLink,
+  Stack,
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 export default function MovieDetail({ movie, director, genre }) {
-  return (
-    <div className="max-w-3xl mx-auto px-6 py-10">
-      <h1 className="text-4xl font-extrabold mb-4 text-blue-800">{movie.title}</h1>
+  return (
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+        <Typography variant="h3" component="h1" gutterBottom color="primary">
+          {movie.title}
+        </Typography>
 
-      <p className="text-gray-700 text-lg mb-4">{movie.description}</p>
+        <Typography variant="body1" color="text.secondary" paragraph>
+          {movie.description}
+        </Typography>
 
-      <div className="mb-4">
-        <span className="font-semibold">🎬 Genre:</span> {genre?.name || 'Unknown'}
-      </div>
+        <Stack spacing={2} sx={{ mb: 4 }}>
+          <Box>
+            <Typography variant="subtitle1" component="span" fontWeight="bold">
+              🎬 Genre:
+            </Typography>{' '}
+            <Chip label={genre?.name || 'Unknown'} color="primary" variant="outlined" />
+          </Box>
 
-      <div className="mb-4">
-        <span className="font-semibold">📅 Release Year:</span> {movie.releaseYear}
-      </div>
+          <Box>
+            <Typography variant="subtitle1" component="span" fontWeight="bold">
+              📅 Release Year:
+            </Typography>{' '}
+            {movie.releaseYear}
+          </Box>
 
-      <div className="mb-4">
-        <span className="font-semibold">⭐ Rating:</span> {movie.rating}
-      </div>
+          <Box>
+            <Typography variant="subtitle1" component="span" fontWeight="bold">
+              ⭐ Rating:
+            </Typography>{' '}
+            {movie.rating}
+          </Box>
 
-      <div className="mb-6">
-        <span className="font-semibold">🎥 Director:</span>{' '}
-        <Link href={`/directors/${director.id}`} className="text-blue-600 hover:underline">
-          {director.name}
-        </Link>
-      </div>
+          <Box>
+            <Typography variant="subtitle1" component="span" fontWeight="bold">
+              🎥 Director:
+            </Typography>{' '}
+            <MuiLink
+              component={Link}
+              href={`/directors/${director.id}`}
+              color="primary"
+              underline="hover"
+            >
+              {director.name}
+            </MuiLink>
+          </Box>
+        </Stack>
 
-      <Link href="/movies" className="inline-block px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition">
-        ⬅️ Back to Movies
-      </Link>
-    </div>
-  );
+        <Button
+          component={Link}
+          href="/movies"
+          variant="contained"
+          color="primary"
+          startIcon={<ArrowBackIcon />}
+        >
+          Back to Movies
+        </Button>
+      </Paper>
+    </Container>
+  );
 }
 
 export async function getStaticPaths() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/movies`);
-  const movies = await res.json();
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/movies`);
+  const movies = await res.json();
 
-  const paths = movies.map((movie) => ({
-    params: { id: movie.id.toString() },
-  }));
+  const paths = movies.map((movie) => ({
+    params: { id: movie.id.toString() },
+  }));
 
-  return {
-    paths,
-    fallback: 'blocking', 
-  };
+  return {
+    paths,
+    fallback: 'blocking', 
+  };
 }
 
 export async function getStaticProps({ params }) {
-  const movieRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/movies/${params.id}`);
-  if (!movieRes.ok) return { notFound: true };
+  const movieRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/movies/${params.id}`);
+  if (!movieRes.ok) return { notFound: true };
 
-  const movie = await movieRes.json();
+  const movie = await movieRes.json();
 
-  const [directorRes, genreRes] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/directors/${movie.directorId}`),
-    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/genres`),
-  ]);
+  const [directorRes, genreRes] = await Promise.all([
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/directors/${movie.directorId}`),
+    fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/genres`),
+  ]);
 
-  const directorData = await directorRes.json();
-  const genresData = await genreRes.json();
-  const genre = genresData.find(g => g.id === movie.genreId);
+  const directorData = await directorRes.json();
+  const genresData = await genreRes.json();
+  const genre = genresData.find(g => g.id === movie.genreId);
 
-  return {
-    props: {
-      movie,
-      director: directorData,
-      genre: genre || null,
-    },
-    revalidate: 60, 
-  };
+  return {
+    props: {
+      movie,
+      director: directorData,
+      genre: genre || null,
+    },
+    revalidate: 60, 
+  };
 }
