@@ -12,7 +12,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch the genre
     const genresSnapshot = await getDocs(collection(db, 'genres'));
     const genres = genresSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     const genre = genres.find(g => g.id === id);
@@ -21,7 +20,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ message: 'Genre not found' });
     }
 
-    // Fetch all movies for the given genre
     const moviesQuery = query(
       collection(db, 'movies'),
       where('genreId', '==', id)
@@ -35,4 +33,4 @@ export default async function handler(req, res) {
     return res.status(200).json({ genre, movies });
   } catch (error) {
     console.error('Error fetching genre and movies:', error);
-    return res.status(500).json({ message: '
+    return res.status(500).json({ message: 'failed to fetch'})}}

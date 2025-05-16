@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   Container,
@@ -10,43 +9,17 @@ import {
   Button,
   Chip,
   Box,
-  CircularProgress,
 } from '@mui/material';
+import { useState } from 'react';
 
-export default function Movies() {
+export default function Movies({ movies, genres }) {
   const router = useRouter();
-  const [movies, setMovies] = useState([]);
-  const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState('all');
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchData() {
-      const [moviesRes, genresRes] = await Promise.all([
-        fetch('/api/movies'),
-        fetch('/api/genres'),
-      ]);
-      const moviesData = await moviesRes.json();
-      const genresData = await genresRes.json();
-      setMovies(moviesData);
-      setGenres(genresData);
-      setLoading(false);
-    }
-
-    fetchData();
-  }, []);
-
-  const filteredMovies = selectedGenre === 'all'
-    ? movies
-    : movies.filter(movie => movie.genreId === selectedGenre);
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const filteredMovies =
+    selectedGenre === 'all'
+      ? movies
+      : movies.filter((movie) => movie.genreId === selectedGenre);
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -61,7 +34,7 @@ export default function Movies() {
           color={selectedGenre === 'all' ? 'primary' : 'default'}
           sx={{ m: 0.5 }}
         />
-        {genres.map(genre => (
+        {genres.map((genre) => (
           <Chip
             key={genre.id}
             label={genre.name}
@@ -73,10 +46,10 @@ export default function Movies() {
       </Box>
 
       <Grid container spacing={3}>
-        {filteredMovies.map(movie => (
+        {filteredMovies.map((movie) => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={movie.id}>
-            <Card 
-              sx={{ 
+            <Card
+              sx={{
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -98,8 +71,8 @@ export default function Movies() {
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button 
-                  size="small" 
+                <Button
+                  size="small"
                   color="primary"
                   onClick={() => router.push(`/movies/${movie.id}`)}
                 >
@@ -112,23 +85,37 @@ export default function Movies() {
       </Grid>
 
       <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
-        <Button
-          variant="contained"
-          color="success"
-          onClick={() => router.push('/genres')}
-          size="large"
-        >
+        <Button variant="contained" color="success" onClick={() => router.push('/genres')} size="large">
           Browse Genres
         </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => router.push('/help')}
-          size="large"
-        >
+        <Button variant="contained" color="primary" onClick={() => router.push('/help')} size="large">
           Go to Help Center
         </Button>
       </Box>
     </Container>
   );
+}
+
+export async function getStaticProps() {
+  try {
+    const [moviesRes, genresRes] = await Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/movies`),
+      fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/genres`),
+    ]);
+
+    if (!moviesRes.ok || !genresRes.ok) return { notFound: true };
+
+    const movies = await moviesRes.json();
+    const genres = await genresRes.json();
+
+    return {
+      props: {
+        movies,
+        genres,
+      },
+      revalidate: 60, 
+    };
+  } catch (error) {
+    return { notFound: true };
+  }
 }

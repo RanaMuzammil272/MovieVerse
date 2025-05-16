@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import {
   Container,
@@ -7,32 +6,10 @@ import {
   Card,
   CardContent,
   Box,
-  CircularProgress,
 } from '@mui/material';
 
-export default function GenresPage() {
+export default function GenresPage({ genres }) {
   const router = useRouter();
-  const [genres, setGenres] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchGenres() {
-      const res = await fetch('/api/genres');
-      const data = await res.json();
-      setGenres(data);
-      setLoading(false);
-    }
-
-    fetchGenres();
-  }, []);
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -41,7 +18,7 @@ export default function GenresPage() {
       </Typography>
 
       <Grid container spacing={3}>
-        {genres.map(genre => (
+        {genres.map((genre) => (
           <Grid item xs={12} sm={6} md={4} key={genre.id}>
             <Card
               onClick={() => router.push(`/genres/${genre.id}`)}
@@ -64,4 +41,23 @@ export default function GenresPage() {
       </Grid>
     </Container>
   );
+}
+
+export async function getServerSideProps() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/genres`);
+    if (!res.ok) {
+      return { notFound: true };
+    }
+
+    const genres = await res.json();
+
+    return {
+      props: {
+        genres,
+      },
+    };
+  } catch (error) {
+    return { notFound: true };
+  }
 }
